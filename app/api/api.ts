@@ -1,9 +1,18 @@
 import { PendingResult, getPendingResult } from "./pendingResult";
 
-let APIURL = 'http://localhost:3000' //TODO CHANGE LOCATION FOR WOOCOMERCE SERVER
+const DEFAULT_API_URL = process.env.API_BASE_URL ?? "https://meyashop.com";
+let APIURL = DEFAULT_API_URL;
 
-export const setApiUrl = (apiurl) => APIURL = apiurl 
-export const getApiUrl = () => process?.env?.PROXY_API_URL ?? APIURL
+export const setApiUrl = (apiurl: string) => {
+    APIURL = apiurl;
+};
+
+export const getApiUrl = () => {
+    if (process?.env?.PROXY_API_URL) {
+        return process.env.PROXY_API_URL;
+    }
+    return APIURL;
+};
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -30,13 +39,22 @@ const _fetch = async (urlOrData, data?, update?, plain?, retryNum=10):Promise<Pe
     const fn = async () => {
         update ? update(getPendingResult('loading')) : null
         try {
-            const res = await fetch(realUrl, data? {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data) 
-            }:undefined);
+            const requestHeaders: Record<string, string> = {};
+            if (data) {
+                requestHeaders['Content-Type'] = 'application/json';
+            }
+
+            const fetchOptions: RequestInit = {};
+            if (Object.keys(requestHeaders).length) {
+                fetchOptions.headers = requestHeaders;
+            }
+
+            if (data) {
+                fetchOptions.method = 'POST';
+                fetchOptions.body = JSON.stringify(data);
+            }
+
+            const res = await fetch(realUrl, fetchOptions);
 
             let resData
             try {
