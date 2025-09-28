@@ -1,29 +1,41 @@
 import type { GetServerSideProps } from "next";
 import { createPage } from "./types";
+import { WooCommerceAPI } from "../api/wooCommerceAPI";
+import { Box } from "@mui/material";
 
 export type HomePageProps = {
   title: string;
+  plans: any
 };
 
-const getServerSideProps: GetServerSideProps<HomePageProps> = async () => {
-  const title = "MEYA SUBSCRIPTION";
 
-  return {
-    props: {
-      title,
-    },
-  };
-};
+function HomeComponent({ title, plans }: HomePageProps) {
+  console.log({ plans });
 
-function HomeComponent({ title }: HomePageProps) {
-  return (
-    <div>
-      <h1>{title}</h1>
-    </div>
-  );
+  return <Box>{plans.map(plan => <>{plan.name}: ${plan.price}</>)}</Box>;
 }
+
 
 export const indexPage = createPage({
   component: HomeComponent,
-  getServerSideProps,
+  getServerSideProps: async () => {
+    const title = "MEYA SUBSCRIPTION";
+    const plans = [
+      {
+        name: "Custom Plan",
+        price: 100,
+      },
+      {
+        name: "Curated Plan",
+        price: 150,
+      }
+    ] // get from woocomerce await WooCommerceAPI.get("/plans");
+
+    return {
+      props: {
+        title,
+        plans,
+      },
+    };
+  }
 });
