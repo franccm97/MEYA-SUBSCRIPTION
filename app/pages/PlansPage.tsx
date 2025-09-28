@@ -1,7 +1,8 @@
 import type { GetServerSideProps } from "next";
 import { createPage } from "./types";
 import { WooCommerceAPI } from "../api/wooCommerceAPI";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { Page } from "../components/Page";
 
 export type HomePageProps = {
   title: string;
@@ -12,9 +13,8 @@ export type HomePageProps = {
 function HomeComponent({ title, plans }: HomePageProps) {
   console.log({ plans });
 
-  return <Box>{plans.map(plan => <>{plan.name}: ${plan.price}</>)}</Box>;
+  return <Page>{plans.map(plan => <Typography key={plan.name}>{plan.name}: ${plan.price}</Typography>)}</Page>;
 }
-
 
 export const indexPage = createPage({
   component: HomeComponent,
